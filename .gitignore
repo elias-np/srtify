@@ -5,3 +5,6 @@ release/
 scripts/
 internal/assets/files/
 .cache/
+release-package.bat
+release-manual/
+.github/
