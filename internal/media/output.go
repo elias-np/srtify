@@ -6,6 +6,24 @@ import (
 	"strings"
 )
 
+var commonAudioExtensions = map[string]bool{
+	".wav":  true,
+	".mp3":  true,
+	".flac": true,
+	".ogg":  true,
+	".oga":  true,
+	".m4a":  true,
+	".aac":  true,
+	".opus": true,
+	".wma":  true,
+	".aiff": true,
+	".aif":  true,
+	".alac": true,
+	".amr":  true,
+	".mka":  true,
+	".caf":  true,
+}
+
 func OutputBase(inputPath string, outputBase string) string {
 	if outputBase != "" {
 		return outputBase
@@ -29,6 +47,11 @@ func ResolveOutputBase(base string) (string, error) {
 	}
 
 	return filepath.Join(workingDir, base), nil
+}
+
+func IsLikelyAudioInput(path string) bool {
+	extension := strings.ToLower(filepath.Ext(path))
+	return commonAudioExtensions[extension]
 }
 
 func withoutExtension(path string) string {

@@ -129,7 +129,7 @@ func validateOptions(options Options) error {
 	}
 
 	if options.Input == "" {
-		return errors.New("expected input video path, got empty value")
+		return errors.New("expected input media path, got empty value")
 	}
 
 	return nil

@@ -39,12 +39,14 @@ Other target folders exist but currently contain placeholders (darwin and arm64 
 
 1. The app extracts embedded runtime files into a temporary directory.
 2. It chooses mode by flags:
-   - Subtitle extraction mode: default SRT mode when force transcribe is not set.
+   - Subtitle extraction mode: default SRT mode for non-audio inputs when force transcribe is not set.
    - Transcription mode: TXT mode or force transcribe mode.
+   - Audio inputs are transcribed by default (including SRT output mode).
 3. It validates that output was actually generated.
 
-Default SRT mode tries to extract the first subtitle stream with FFmpeg map 0:s:0.
-If the input has no embedded subtitle track, that step fails.
+Default SRT mode tries to extract the first subtitle stream with FFmpeg map 0:s:0 for non-audio files.
+For likely audio inputs (mp3, wav, flac, m4a, opus and other common audio extensions), srtify goes straight to transcription.
+If a non-audio input has no embedded subtitle track, extraction still fails.
 There is currently no automatic fallback from extraction to transcription in that branch.
 
 ### Language behavior
@@ -76,6 +78,9 @@ srtify -f movie.mp4
 
 # Generate plain text transcript
 srtify -txt movie.mp4
+
+# Generate .srt from audio directly (no manual conversion)
+srtify lecture.mp3
 
 # Input can come before flags
 srtify movie.mp4 -txt
@@ -123,12 +128,14 @@ Outras pastas de target existem, mas hoje estao com placeholders (darwin e varia
 
 1. O app extrai os arquivos de runtime para um diretorio temporario.
 2. O modo e decidido pelas flags:
-   - Modo extracao de legenda: modo SRT padrao sem force transcribe.
+   - Modo extracao de legenda: modo SRT padrao para entradas nao-audio sem force transcribe.
    - Modo transcricao: modo TXT ou modo force transcribe.
+   - Entradas de audio usam transcricao por padrao (inclusive no modo SRT).
 3. O app valida se o arquivo de saida foi realmente gerado.
 
-No modo SRT padrao, ele tenta extrair a primeira faixa de legenda com FFmpeg map 0:s:0.
-Se o arquivo nao tiver faixa de legenda embutida, essa etapa falha.
+No modo SRT padrao, ele tenta extrair a primeira faixa de legenda com FFmpeg map 0:s:0 para arquivos nao-audio.
+Para entradas de audio comuns (mp3, wav, flac, m4a, opus e similares), o srtify vai direto para transcricao.
+Se uma entrada nao-audio nao tiver faixa de legenda embutida, essa etapa falha.
 Hoje nao existe fallback automatico de extracao para transcricao nesse ramo.
 
 ### Idioma da transcricao
@@ -160,6 +167,9 @@ srtify -f video.mp4
 
 # Gera transcricao em texto
 srtify -txt video.mp4
+
+# Gera .srt a partir de audio sem conversao manual
+srtify aula.mp3
 
 # Entrada pode vir antes das flags
 srtify video.mp4 -txt

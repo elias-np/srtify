@@ -50,3 +50,35 @@ func TestResolveOutputBaseKeepsAbsolutePath(t *testing.T) {
 		t.Fatalf("expected resolved output %q, got %q", abs, resolved)
 	}
 }
+
+func TestIsLikelyAudioInputReturnsTrueForCommonAudioExtensions(t *testing.T) {
+	inputs := []string{
+		"podcast.wav",
+		"voice.MP3",
+		"take.flac",
+		"song.m4a",
+		"clip.opus",
+		"archive.mka",
+	}
+
+	for _, input := range inputs {
+		if !IsLikelyAudioInput(input) {
+			t.Fatalf("expected %q to be detected as audio input", input)
+		}
+	}
+}
+
+func TestIsLikelyAudioInputReturnsFalseForNonAudioExtensions(t *testing.T) {
+	inputs := []string{
+		"video.mp4",
+		"movie.mkv",
+		"subtitle.srt",
+		"file",
+	}
+
+	for _, input := range inputs {
+		if IsLikelyAudioInput(input) {
+			t.Fatalf("expected %q to not be detected as audio input", input)
+		}
+	}
+}

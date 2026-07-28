@@ -79,13 +79,21 @@ func generateOutput(options cli.Options, paths assets.RuntimePaths) (string, err
 		return outputPath, subtitle.ExtractFirst(paths.FFmpeg, options.Input, outputPath)
 	}
 
+	if options.Format == cli.FormatSRT && media.IsLikelyAudioInput(options.Input) {
+		debugLog(options, "entrada de audio detectada; usando transcricao para gerar srt")
+	}
+
 	debugLog(options, "modo transcricao por whisper")
 	request := transcribe.RequestFromOptions(options, paths, outputBase)
 	return outputPath, transcribe.Audio(request)
 }
 
 func shouldExtractSubtitle(options cli.Options) bool {
-	return !options.ForceTranscribe && options.Format == cli.FormatSRT
+	if options.ForceTranscribe || options.Format != cli.FormatSRT {
+		return false
+	}
+
+	return !media.IsLikelyAudioInput(options.Input)
 }
 
 func expectedOutputPath(options cli.Options, outputBase string) string {

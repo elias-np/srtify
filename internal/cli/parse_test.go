@@ -1,6 +1,9 @@
 package cli
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestParseReturnsDefaultSRTFormat(t *testing.T) {
 	options, err := Parse([]string{"video.mp4"})
@@ -69,6 +72,10 @@ func TestParseRequiresInput(t *testing.T) {
 	_, err := Parse([]string{})
 	if err == nil {
 		t.Fatal("expected missing input error, got nil")
+	}
+
+	if !strings.Contains(err.Error(), "expected input media path") {
+		t.Fatalf("expected missing input error to mention media path, got %q", err.Error())
 	}
 }
 
