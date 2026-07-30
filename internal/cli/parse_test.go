@@ -89,3 +89,55 @@ func TestParseAllowsHelpWithoutInput(t *testing.T) {
 		t.Fatal("expected help flag to be true")
 	}
 }
+
+func TestParseAllowsRecursiveWithoutInput(t *testing.T) {
+	options, err := Parse([]string{"-r"})
+	if err != nil {
+		t.Fatalf("expected recursive parse to succeed, got error %v", err)
+	}
+
+	if !options.Recursive {
+		t.Fatal("expected recursive flag to be true")
+	}
+
+	if options.Input != "" {
+		t.Fatalf("expected empty input to default to current directory later, got %q", options.Input)
+	}
+}
+
+func TestParseAcceptsRecursiveWithSourceAndOutputFolders(t *testing.T) {
+	options, err := Parse([]string{"-r", "--output", "saida", "midias"})
+	if err != nil {
+		t.Fatalf("expected parse to succeed, got error %v", err)
+	}
+
+	if options.Input != "midias" {
+		t.Fatalf("expected input folder %q, got %q", "midias", options.Input)
+	}
+
+	if options.OutputBase != "saida" {
+		t.Fatalf("expected output folder %q, got %q", "saida", options.OutputBase)
+	}
+}
+
+func TestParseAcceptsGranularityFlag(t *testing.T) {
+	options, err := Parse([]string{"video.mp4", "-g", "5"})
+	if err != nil {
+		t.Fatalf("expected parse to succeed, got error %v", err)
+	}
+
+	if options.Granularity != 5 {
+		t.Fatalf("expected granularity 5, got %d", options.Granularity)
+	}
+}
+
+func TestParseRejectsGranularityOutOfRange(t *testing.T) {
+	_, err := Parse([]string{"video.mp4", "-g", "6"})
+	if err == nil {
+		t.Fatal("expected out-of-range granularity error, got nil")
+	}
+
+	if !strings.Contains(err.Error(), "expected granularity between 0 and 5") {
+		t.Fatalf("expected granularity range error, got %q", err.Error())
+	}
+}

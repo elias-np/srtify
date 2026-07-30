@@ -60,12 +60,38 @@ There is currently no automatic fallback from extraction to transcription in tha
 - -srt: generate SRT (default)
 - -txt: generate TXT
 - -l, --language: auto, pt, en
-- -o, --output: output base name or full path (without extension)
+- -o, --output: output base name or full path (without extension); destination folder when combined with -r
 - -f, --force-transcribe: skip embedded subtitle extraction and transcribe
+- -r, --recursive: process every media file inside a folder (subfolders included)
+- -g, --granularity: subtitle timing granularity, 0-5 [default: 0]
 - --debug: debug logs
 - --verbose: alias of debug
 - -v, --version: version
 - -h, --help: help
+
+### Recursive folder mode (-r)
+
+- `srtify -r` processes every media file in the current directory (and subfolders), writing outputs next to each input.
+- `srtify -r path/to/videos` uses that folder as the source instead of the current directory.
+- `srtify -r -o path/to/output path/to/videos` writes outputs to a separate destination folder, mirroring the source's subfolder structure.
+- Files that fail are reported individually; srtify keeps processing the rest of the batch and exits with an error only if at least one file failed.
+
+### Subtitle timing granularity (-g)
+
+By default srtify keeps whisper's natural sentence-length segments. For use cases that need finer-grained timing (for example, highlighting the word or phrase currently being read in a language-learning app), `-g` controls how small each subtitle entry is:
+
+| Level | Segment size |
+| --- | --- |
+| 0 (default) | whisper's natural segments (full sentences) |
+| 1 | long phrases, ~10 words |
+| 2 | medium phrases, ~7 words |
+| 3 | short phrases, ~5 words |
+| 4 | small groups, ~3-5 words |
+| 5 | word by word |
+
+Granularity only affects transcription (whisper). It has no effect when srtify extracts an already embedded subtitle track, since that track's timing is not regenerated.
+
+whisper.cpp has no native "words per segment" flag; srtify approximates the word-group sizes above using whisper's `-ml`/`-sow` character-based segment length, so exact word counts per entry can vary slightly with pronunciation and language.
 
 ### Usage examples
 
@@ -90,6 +116,18 @@ srtify -txt -l pt movie.mp4
 
 # Custom output base
 srtify -txt -o out/session_01 movie.mp4
+
+# Process every media file in the current folder
+srtify -r
+
+# Process a folder, writing results into a separate output folder
+srtify -r -o out/subtitles videos/
+
+# Word-by-word timing, useful for language-learning apps
+srtify -g 5 lecture.mp3
+
+# Groups of 3-5 words per subtitle entry
+srtify -g 4 lecture.mp3
 ~~~
 
 ### AI-friendly summary
@@ -149,12 +187,38 @@ Hoje nao existe fallback automatico de extracao para transcricao nesse ramo.
 - -srt: gera SRT (padrao)
 - -txt: gera TXT
 - -l, --language: auto, pt, en
-- -o, --output: base de saida ou caminho completo (sem extensao)
+- -o, --output: base de saida ou caminho completo (sem extensao); pasta de destino quando combinado com -r
 - -f, --force-transcribe: pula extracao de legenda e forca transcricao
+- -r, --recursive: processa todo arquivo de midia dentro de uma pasta (incluindo subpastas)
+- -g, --granularity: granularidade da marcacao de tempo da legenda, 0-5 [padrao: 0]
 - --debug: logs de depuracao
 - --verbose: alias de debug
 - -v, --version: versao
 - -h, --help: ajuda
+
+### Modo recursivo de pasta (-r)
+
+- `srtify -r` processa todo arquivo de midia na pasta atual (e subpastas), salvando a saida ao lado de cada entrada.
+- `srtify -r caminho/dos/videos` usa essa pasta como origem em vez da pasta atual.
+- `srtify -r -o caminho/de/saida caminho/dos/videos` salva a saida em uma pasta de destino separada, espelhando a estrutura de subpastas da origem.
+- Arquivos que falham sao reportados individualmente; o srtify continua processando o restante do lote e so termina com erro se pelo menos um arquivo falhar.
+
+### Granularidade da marcacao de tempo (-g)
+
+Por padrao o srtify mantem os segmentos naturais do whisper (frases completas). Para casos de uso que precisam de marcacao de tempo mais fina (por exemplo, destacar a palavra ou trecho que esta sendo lido em um aplicativo de aprendizado de idiomas), a flag `-g` controla o tamanho de cada trecho de legenda:
+
+| Nivel | Tamanho do trecho |
+| --- | --- |
+| 0 (padrao) | segmentos naturais do whisper (frases completas) |
+| 1 | frases longas, ~10 palavras |
+| 2 | frases medias, ~7 palavras |
+| 3 | frases curtas, ~5 palavras |
+| 4 | grupos pequenos, ~3-5 palavras |
+| 5 | palavra por palavra |
+
+A granularidade so afeta a transcricao (whisper). Ela nao tem efeito quando o srtify extrai uma faixa de legenda ja embutida, pois a marcacao de tempo dessa faixa nao e regerada.
+
+O whisper.cpp nao tem uma flag nativa de "palavras por segmento"; o srtify aproxima os tamanhos de grupo acima usando a flag de tamanho de segmento baseada em caracteres do whisper (`-ml`/`-sow`), entao a contagem exata de palavras por trecho pode variar um pouco de acordo com a pronuncia e o idioma.
 
 ### Exemplos de uso
 
@@ -179,6 +243,18 @@ srtify -txt -l pt video.mp4
 
 # Base de saida customizada
 srtify -txt -o saida/sessao_01 video.mp4
+
+# Processa todo arquivo de midia da pasta atual
+srtify -r
+
+# Processa uma pasta, salvando o resultado em outra pasta de saida
+srtify -r -o saida/legendas videos/
+
+# Marcacao palavra por palavra, util para apps de aprendizado de idiomas
+srtify -g 5 aula.mp3
+
+# Grupos de 3-5 palavras por trecho de legenda
+srtify -g 4 aula.mp3
 ~~~
 
 ## License

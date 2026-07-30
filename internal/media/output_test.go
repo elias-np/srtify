@@ -1,4 +1,4 @@
-﻿package media
+package media
 
 import (
 	"path/filepath"
@@ -79,6 +79,35 @@ func TestIsLikelyAudioInputReturnsFalseForNonAudioExtensions(t *testing.T) {
 	for _, input := range inputs {
 		if IsLikelyAudioInput(input) {
 			t.Fatalf("expected %q to not be detected as audio input", input)
+		}
+	}
+}
+
+func TestIsMediaFileReturnsTrueForAudioAndVideoExtensions(t *testing.T) {
+	inputs := []string{
+		"movie.mp4",
+		"clip.MKV",
+		"podcast.mp3",
+		"take.wav",
+	}
+
+	for _, input := range inputs {
+		if !IsMediaFile(input) {
+			t.Fatalf("expected %q to be detected as a media file", input)
+		}
+	}
+}
+
+func TestIsMediaFileReturnsFalseForNonMediaExtensions(t *testing.T) {
+	inputs := []string{
+		"subtitle.srt",
+		"transcript.txt",
+		"cover.jpg",
+	}
+
+	for _, input := range inputs {
+		if IsMediaFile(input) {
+			t.Fatalf("expected %q to not be detected as a media file", input)
 		}
 	}
 }

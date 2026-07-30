@@ -23,6 +23,10 @@ func Run(options cli.Options) error {
 		return nil
 	}
 
+	if options.Recursive {
+		return runFolder(options)
+	}
+
 	outputPath, err := processVideo(options)
 	if err != nil {
 		return err
@@ -34,30 +38,44 @@ func Run(options cli.Options) error {
 
 func processVideo(options cli.Options) (string, error) {
 	debugLog(options, "iniciando processamento do arquivo %q", options.Input)
+
+	var outputPath string
+	err := withRuntimeAssets(options, func(paths assets.RuntimePaths) error {
+		generated, genErr := generateOutput(options, paths)
+		if genErr != nil {
+			return genErr
+		}
+
+		if err := ensureOutputWasGenerated(generated); err != nil {
+			return err
+		}
+
+		outputPath = generated
+		return nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	debugLog(options, "saida confirmada em %q", outputPath)
+	return outputPath, nil
+}
+
+func withRuntimeAssets(options cli.Options, fn func(assets.RuntimePaths) error) error {
 	baseDir, err := os.MkdirTemp("", "srtify-*")
 	if err != nil {
-		return "", fmt.Errorf("create runtime directory with pattern %q: %w", "srtify-*", err)
+		return fmt.Errorf("create runtime directory with pattern %q: %w", "srtify-*", err)
 	}
 	defer os.RemoveAll(baseDir)
 	debugLog(options, "diretorio temporario criado em %q", baseDir)
 
 	paths, err := assets.ExtractRuntimeFiles(baseDir)
 	if err != nil {
-		return "", err
+		return err
 	}
 	debugLog(options, "assets extraidos com sucesso")
 
-	outputPath, err := generateOutput(options, paths)
-	if err != nil {
-		return "", err
-	}
-
-	if err := ensureOutputWasGenerated(outputPath); err != nil {
-		return "", err
-	}
-
-	debugLog(options, "saida confirmada em %q", outputPath)
-	return outputPath, nil
+	return fn(paths)
 }
 
 func generateOutput(options cli.Options, paths assets.RuntimePaths) (string, error) {

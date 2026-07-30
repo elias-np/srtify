@@ -41,6 +41,10 @@ func registerOutputFlags(flags *flag.FlagSet, options *Options) {
 func registerModeFlags(flags *flag.FlagSet, options *Options) {
 	flags.BoolVar(&options.ForceTranscribe, "f", false, "ignore existing subtitles")
 	flags.BoolVar(&options.ForceTranscribe, "force-transcribe", false, "ignore existing subtitles")
+	flags.BoolVar(&options.Recursive, "r", false, "process every media file in a folder")
+	flags.BoolVar(&options.Recursive, "recursive", false, "process every media file in a folder")
+	flags.IntVar(&options.Granularity, "g", 0, "subtitle timing granularity, 0-5 (5 = word by word)")
+	flags.IntVar(&options.Granularity, "granularity", 0, "subtitle timing granularity, 0-5 (5 = word by word)")
 	flags.BoolVar(&options.Debug, "debug", false, "show debug logs")
 	flags.BoolVar(&options.Verbose, "verbose", false, "show debug logs")
 	flags.BoolVar(&options.ShowVersion, "v", false, "show version")
@@ -51,10 +55,12 @@ func registerModeFlags(flags *flag.FlagSet, options *Options) {
 
 func reorderArgsForFlexibleOrder(args []string) []string {
 	valueFlags := map[string]bool{
-		"-l":         true,
-		"--language": true,
-		"-o":         true,
-		"--output":   true,
+		"-l":            true,
+		"--language":    true,
+		"-o":            true,
+		"--output":      true,
+		"-g":            true,
+		"--granularity": true,
 	}
 
 	flagArgs := make([]string, 0, len(args))
@@ -128,8 +134,24 @@ func validateOptions(options Options) error {
 		return nil
 	}
 
+	if err := validateGranularity(options.Granularity); err != nil {
+		return err
+	}
+
+	if options.Recursive {
+		return nil
+	}
+
 	if options.Input == "" {
 		return errors.New("expected input media path, got empty value")
+	}
+
+	return nil
+}
+
+func validateGranularity(level int) error {
+	if level < 0 || level > 5 {
+		return fmt.Errorf("expected granularity between 0 and 5, got %d", level)
 	}
 
 	return nil

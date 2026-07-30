@@ -1,4 +1,4 @@
-﻿package transcribe
+package transcribe
 
 import (
 	"srtify/internal/assets"
@@ -13,6 +13,7 @@ type Request struct {
 	OutputBase  string
 	Language    string
 	Format      cli.OutputFormat
+	Granularity int
 	Debug       bool
 }
 
@@ -25,6 +26,7 @@ func RequestFromOptions(options cli.Options, paths assets.RuntimePaths, outputBa
 		OutputBase:  outputBase,
 		Language:    options.Language,
 		Format:      options.Format,
+		Granularity: options.Granularity,
 		Debug:       options.Debug || options.Verbose,
 	}
 }

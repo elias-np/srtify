@@ -13,6 +13,8 @@ type Options struct {
 	Language        string
 	Format          OutputFormat
 	ForceTranscribe bool
+	Recursive       bool
+	Granularity     int
 	Debug           bool
 	Verbose         bool
 	ShowVersion     bool

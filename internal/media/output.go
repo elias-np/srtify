@@ -1,4 +1,4 @@
-﻿package media
+package media
 
 import (
 	"os"
@@ -22,6 +22,21 @@ var commonAudioExtensions = map[string]bool{
 	".amr":  true,
 	".mka":  true,
 	".caf":  true,
+}
+
+var commonVideoExtensions = map[string]bool{
+	".mp4":  true,
+	".mkv":  true,
+	".avi":  true,
+	".mov":  true,
+	".webm": true,
+	".flv":  true,
+	".wmv":  true,
+	".m4v":  true,
+	".mpg":  true,
+	".mpeg": true,
+	".3gp":  true,
+	".ts":   true,
 }
 
 func OutputBase(inputPath string, outputBase string) string {
@@ -52,6 +67,11 @@ func ResolveOutputBase(base string) (string, error) {
 func IsLikelyAudioInput(path string) bool {
 	extension := strings.ToLower(filepath.Ext(path))
 	return commonAudioExtensions[extension]
+}
+
+func IsMediaFile(path string) bool {
+	extension := strings.ToLower(filepath.Ext(path))
+	return commonAudioExtensions[extension] || commonVideoExtensions[extension]
 }
 
 func withoutExtension(path string) string {

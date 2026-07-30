@@ -37,7 +37,8 @@ func whisperArgs(request Request, audioPath string) []string {
 	}
 
 	args = append(args, formatFlag(request.Format))
-	return append(args, languageArgs(request.Language)...)
+	args = append(args, languageArgs(request.Language)...)
+	return append(args, granularityArgs(request.Granularity)...)
 }
 
 func prepareAudioInput(request Request) (string, func(), error) {
